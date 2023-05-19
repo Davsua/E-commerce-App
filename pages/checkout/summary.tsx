@@ -2,18 +2,34 @@ import { CartList, OrderSummary } from '<@davsua>/components/cart';
 import { ShopLayout } from '<@davsua>/components/layouts';
 import { CartContext } from '<@davsua>/context';
 import { countries } from '<@davsua>/utils';
+import { RouteRounded } from '@mui/icons-material';
 import { Button, Card, CardContent, Divider, Grid, Link, Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import React, { useContext } from 'react';
+import Cookies from 'js-cookie';
+import { useRouter } from 'next/router';
+import React, { useContext, useEffect } from 'react';
 
 const SummaryOrder = () => {
-  const { shippingAddress, numberOfItems } = useContext(CartContext);
+  const router = useRouter();
+  const { shippingAddress, numberOfItems, createOrder } = useContext(CartContext);
 
-  /*if (!shippingAddress) {
+  useEffect(() => {
+    if (!Cookies.get('firstName')) {
+      router.push('/checkout/address');
+    }
+  }, [router]);
+
+  const onCreateOrder = () => {
+    createOrder();
+  };
+
+  if (!shippingAddress) {
     <></>;
-  }*/
+  }
 
   //const { firstName, lastName, address, address2, phone, zip, country, city } = (shippingAddress);
+
+  //console.log(shippingAddress);
 
   return (
     <ShopLayout title='Resumen de la orden' pageDescription='Resumen de la orden de compra'>
@@ -64,7 +80,7 @@ const SummaryOrder = () => {
               <OrderSummary />
 
               <Box sx={{ mt: 3 }}>
-                <Button color='secondary' className='circular-btn'>
+                <Button color='secondary' className='circular-btn' onClick={onCreateOrder}>
                   Confirmar Orden
                 </Button>
               </Box>

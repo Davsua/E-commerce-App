@@ -1,5 +1,5 @@
-import { ICartProduct } from '<@davsua>/interfaces';
-import { CartState, ShippingAddress } from './';
+import { ICartProduct, ShippingAddress } from '<@davsua>/interfaces';
+import { CartState } from './';
 import { ProductCard } from '../../components/products/ProductCard';
 
 type CartActionType =

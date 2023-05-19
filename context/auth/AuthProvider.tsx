@@ -1,3 +1,5 @@
+import { useSession, signOut } from 'next-auth/react';
+
 import { tesloApi } from '<@davsua>/api';
 import { IUser } from '<@davsua>/interfaces';
 import Cookies from 'js-cookie';
@@ -20,14 +22,27 @@ export interface AuthState {
 const AUTH_INITIAL_STATE: AuthState = {
   isLoggedIn: false,
 };
+
 export const AuthProvider: React.FC<Props> = ({ children }) => {
   const router = useRouter();
-
   const [state, dispatch] = useReducer(authReducer, AUTH_INITIAL_STATE);
 
+  //obtener los datos del usuario (logeado con otra red social)
+  const session = useSession();
+  //console.log({ session });
+
   useEffect(() => {
-    checkToken();
-  }, []);
+    if (session.status === 'authenticated') {
+      //console.log(session.data.user);
+      dispatch({ type: 'Auth - login', payload: session.data?.user as IUser });
+    }
+  }, [session.status, session.data]);
+
+  /** ESTO SE USA CUANDO ES AUTENTICACION PERSONALIZADA, NO NEXTAUTH */
+
+  // useEffect(() => {
+  //   checkToken();
+  // }, []);
 
   // validar token
   const checkToken = async () => {
@@ -94,12 +109,27 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
 
   const logout = () => {
     //Limpiar las cookies
-    Cookies.remove('token');
+
     Cookies.remove('cart');
+    Cookies.remove('firstName');
+    Cookies.remove('laslastName');
+    Cookies.remove('address');
+    Cookies.remove('address2');
+    Cookies.remove('zip');
+    Cookies.remove('city');
+    Cookies.remove('country');
+    Cookies.remove('phone');
+
+    // deasde nextJS facilitan esto.
+    signOut();
 
     // hacer un "refresh en la pagina"
     // como ya no tiene cookies, seria como reiniciar la app
-    router.reload();
+
+    // --> ya no son necesarion, solo se usan en la auth personalizada
+
+    ///router.reload();
+    ///Cookies.remove('token');
   };
 
   return (

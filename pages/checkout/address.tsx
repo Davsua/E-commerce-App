@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { GetServerSideProps } from 'next';
 
 import { ShopLayout } from '<@davsua>/components/layouts';
@@ -51,20 +51,29 @@ const getAddressFromCookies = (): FormData => {
 const AdressPage = () => {
   const { updateAddress } = useContext(CartContext);
   const router = useRouter();
+  const [defaultCountry, setDefaultCountry] = useState('');
+  //console.log(defaultCountry);
 
   // tomar el type para el form
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<FormData>({
     defaultValues: getAddressFromCookies(),
   });
 
+  useEffect(() => {
+    const address = getAddressFromCookies();
+    reset(address);
+    setDefaultCountry(address.country);
+  }, [reset]);
+
   //console.log(countries[0].code);
 
   const onCheckAddress = (data: FormData) => {
-    console.log(data);
+    //console.log(data);
 
     updateAddress(data);
     router.push('/checkout/summary');
@@ -182,16 +191,19 @@ const AdressPage = () => {
           <Grid item xs={12} sm={6}>
             <FormControl fullWidth>
               <TextField
+                key={defaultCountry}
                 select
                 variant='filled'
                 label='Country'
-                defaultValue={Cookies.get('country') || countries[0].code}
+                fullWidth
+                defaultValue={defaultCountry}
                 {...register('country', {
                   //validaciones..
                   required: 'Este campo es requerido',
                 })}
                 // ---> !! = conversion de un obj a boolean <----
-                error={!!errors.city}
+                error={!!errors.country}
+                helperText={errors.country?.message}
               >
                 {countries.map((country) => (
                   <MenuItem value={country.code} key={country.code}>

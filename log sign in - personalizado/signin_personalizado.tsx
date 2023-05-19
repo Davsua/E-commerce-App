@@ -1,9 +1,5 @@
 import React, { useContext, useState } from 'react';
 
-import { GetServerSideProps } from 'next';
-import { getSession, signIn } from 'next-auth/react';
-import { useRouter } from 'next/router';
-
 import { useForm } from 'react-hook-form';
 
 import { Box, Grid, TextField, Button, Link, Chip } from '@mui/material';
@@ -11,7 +7,9 @@ import Typography from '@mui/material/Typography';
 import { ErrorOutline } from '@mui/icons-material';
 
 import { AuthLayout } from '<@davsua>/components/layouts';
+import { tesloApi } from '<@davsua>/api';
 import { validations } from '<@davsua>/utils';
+import { useRouter } from 'next/router';
 import { AuthContext } from '<@davsua>/context';
 
 type FormData = {
@@ -49,13 +47,11 @@ const RegisterPage = () => {
       return;
     }
 
-    // // tomar por el query parametro que se le esta enviando para volver a la pagina
-    // // en la que estaba el usuario al oprimir el boton de ingresar
-    // // query parametro esta en SideMenu
-    // const destination = router.query.p?.toString() || '/';
-    // router.replace(destination);
-
-    await signIn('credentials', { email, password });
+    // tomar por el query parametro que se le esta enviando para volver a la pagina
+    // en la que estaba el usuario al oprimir el boton de ingresar
+    // query parametro esta en SideMenu
+    const destination = router.query.p?.toString() || '/';
+    router.replace(destination);
   };
 
   return (
@@ -152,28 +148,6 @@ const RegisterPage = () => {
       </form>
     </AuthLayout>
   );
-};
-
-export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
-  // crear la sesion con los datos proporcionados
-  const session = await getSession({ req });
-  //console.log(session);
-
-  // redirigir a la pantalla que estaba antes o al inicio
-  const { p = '/' } = query;
-
-  if (session) {
-    return {
-      redirect: {
-        destination: p.toString(),
-        permanent: false,
-      },
-    };
-  }
-
-  return {
-    props: {},
-  };
 };
 
 export default RegisterPage;

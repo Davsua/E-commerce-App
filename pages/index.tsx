@@ -1,5 +1,6 @@
-import { ShopLayout } from '../components/layouts/ShopLayout';
 import { Typography, Grid, Card, CardActionArea, CardMedia } from '@mui/material';
+
+import { ShopLayout } from '../components/layouts/ShopLayout';
 import { ProductList } from '<@davsua>/components/products';
 import { Product } from '<@davsua>/models';
 import { useProducts } from '<@davsua>/hooks';
@@ -9,10 +10,7 @@ export default function Home() {
   const { products, isLoading } = useProducts('/products');
 
   return (
-    <ShopLayout
-      title={'Teslo shop - home'}
-      pageDescription={'Encuentra variedad y calidad en Teslo shop'}
-    >
+    <ShopLayout title={'Teslo shop - home'} pageDescription={'Encuentra variedad y calidad en Teslo shop'}>
       <Typography variant='h1' component='h1'>
         Tienda
       </Typography>

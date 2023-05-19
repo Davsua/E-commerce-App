@@ -1,16 +1,19 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
+
+import { useRouter } from 'next/router';
+import { getSession, signIn, getProviders } from 'next-auth/react';
+import { GetServerSideProps } from 'next';
 
 import { useForm } from 'react-hook-form';
 
 import { ErrorOutline } from '@mui/icons-material';
-import { Box, Grid, TextField, Button, Link, Chip } from '@mui/material';
+import { Box, Grid, TextField, Button, Link, Chip, Divider } from '@mui/material';
 import Typography from '@mui/material/Typography';
 
 import { AuthLayout } from '<@davsua>/components/layouts';
 import { validations } from '<@davsua>/utils';
-import { tesloApi } from '<@davsua>/api';
-import { AuthContext } from '<@davsua>/context';
-import { useRouter } from 'next/router';
+//import { tesloApi } from '<@davsua>/api';
+//import { AuthContext } from '<@davsua>/context';
 
 type FormData = {
   email: string;
@@ -28,8 +31,20 @@ const LoginPage = () => {
 
   const router = useRouter();
   //console.log(router.query);
+
   const [showError, setShowError] = useState(false);
-  const { loginUser } = useContext(AuthContext);
+  const [providers, setProviders] = useState<any>({});
+
+  useEffect(() => {
+    //getproviders es una promesa que traera mis providers (credenciales, github...)
+
+    getProviders().then((prov) => {
+      //console.log({ prov });
+      setProviders(prov);
+    });
+  }, []);
+
+  //const { loginUser } = useContext(AuthContext);
 
   const onLoginUser = async ({ email, password }: FormData) => {
     // data contiene el email y password... se destructuraron en la funcion
@@ -37,22 +52,27 @@ const LoginPage = () => {
 
     setShowError(false);
 
-    const isValidLogin = await loginUser(email, password);
+    //const isValidLogin = await loginUser(email, password);
 
-    if (!isValidLogin) {
-      setShowError(true);
-      //ocultarolo despues de determinado tiempo (opcional)
-      setTimeout(() => {
-        setShowError(false);
-      }, 3000);
-      return;
-    }
+    setShowError(false);
 
-    // tomar por el query parametro que se le esta enviando para volver a la pagina
-    // en la que estaba el usuario al oprimir el boton de ingresar
-    // query parametro esta en SideMenu
-    const destination = router.query.p?.toString() || '/';
-    router.replace(destination);
+    // if (!isValidLogin) {
+    //   setShowError(true);
+    //   //ocultarolo despues de determinado tiempo (opcional)
+    //   setTimeout(() => {
+    //     setShowError(false);
+    //   }, 3000);
+    //   return;
+    // }
+
+    // // tomar por el query parametro que se le esta enviando para volver a la pagina
+    // // en la que estaba el usuario al oprimir el boton de ingresar
+    // // query parametro esta en SideMenu
+    // const destination = router.query.p?.toString() || '/';
+    // router.replace(destination);
+
+    //! -> toma los provider permitidos ([...nextauth]), data
+    await signIn('credentials', { email, password });
   };
 
   return (
@@ -129,11 +149,56 @@ const LoginPage = () => {
                 ¿No tienes cuenta?
               </Link>
             </Grid>
+
+            <Grid item xs={12} display='flex' flexDirection='column' justifyContent='end'>
+              <Divider sx={{ width: '100%', mb: 2 }} />
+              {Object.values(providers).map((provider: any) => {
+                if (provider.id === 'credentials') return <div key='credenmtials'></div>;
+
+                return (
+                  <Button
+                    key={provider.id}
+                    variant='outlined'
+                    fullWidth
+                    color='primary'
+                    sx={{ mb: 1 }}
+                    onClick={() => signIn(provider.id)}
+                  >
+                    {provider.name}
+                  </Button>
+                );
+              })}
+            </Grid>
           </Grid>
         </Box>
       </form>
     </AuthLayout>
   );
+};
+
+// You should use getServerSideProps when:
+// - Only if you need to pre-render a page whose data must be fetched at request time
+
+export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
+  // crear la sesion con los datos proporcionados
+  const session = await getSession({ req });
+  //console.log(session);
+
+  // redirigir a la pantalla que estaba antes o al inicio
+  const { p = '/' } = query;
+
+  if (session) {
+    return {
+      redirect: {
+        destination: p.toString(),
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
 };
 
 export default LoginPage;

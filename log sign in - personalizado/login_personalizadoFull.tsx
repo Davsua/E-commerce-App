@@ -1,26 +1,23 @@
-import React, { useContext, useState } from 'react';
-
-import { GetServerSideProps } from 'next';
-import { getSession, signIn } from 'next-auth/react';
-import { useRouter } from 'next/router';
+import React, { useState, useContext } from 'react';
 
 import { useForm } from 'react-hook-form';
 
+import { ErrorOutline } from '@mui/icons-material';
 import { Box, Grid, TextField, Button, Link, Chip } from '@mui/material';
 import Typography from '@mui/material/Typography';
-import { ErrorOutline } from '@mui/icons-material';
 
 import { AuthLayout } from '<@davsua>/components/layouts';
 import { validations } from '<@davsua>/utils';
+import { tesloApi } from '<@davsua>/api';
 import { AuthContext } from '<@davsua>/context';
+import { useRouter } from 'next/router';
 
 type FormData = {
-  name: string;
   email: string;
   password: string;
 };
 
-const RegisterPage = () => {
+const LoginPage = () => {
   const {
     register,
     handleSubmit,
@@ -30,41 +27,42 @@ const RegisterPage = () => {
   //console.log(errors);
 
   const router = useRouter();
-  const { registerUser } = useContext(AuthContext);
-
+  //console.log(router.query);
   const [showError, setShowError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const { loginUser } = useContext(AuthContext);
 
-  const onshowError = async ({ name, email, password }: FormData) => {
+  const onLoginUser = async ({ email, password }: FormData) => {
+    // data contiene el email y password... se destructuraron en la funcion
+    //console.log({ data });
+
     setShowError(false);
 
-    const { hasError, message } = await registerUser(name, email, password);
+    const isValidLogin = await loginUser(email, password);
 
-    if (hasError) {
+    if (!isValidLogin) {
       setShowError(true);
-      setErrorMessage(message!);
+      //ocultarolo despues de determinado tiempo (opcional)
       setTimeout(() => {
         setShowError(false);
       }, 3000);
       return;
     }
 
-    // // tomar por el query parametro que se le esta enviando para volver a la pagina
-    // // en la que estaba el usuario al oprimir el boton de ingresar
-    // // query parametro esta en SideMenu
-    // const destination = router.query.p?.toString() || '/';
-    // router.replace(destination);
-
-    await signIn('credentials', { email, password });
+    // tomar por el query parametro que se le esta enviando para volver a la pagina
+    // en la que estaba el usuario al oprimir el boton de ingresar
+    // query parametro esta en SideMenu
+    const destination = router.query.p?.toString() || '/';
+    router.replace(destination);
   };
 
   return (
-    <AuthLayout title='Registro'>
+    <AuthLayout title='Ingresar'>
+      {/* no validate evita que chrome lanze error por no poner @*/}
       <form
-        onSubmit={handleSubmit(onshowError)}
+        onSubmit={handleSubmit(onLoginUser)}
         onKeyUp={(e) => {
           if (e.key === 'Enter') {
-            handleSubmit(onshowError);
+            handleSubmit(onLoginUser);
             e.preventDefault();
           }
         }}
@@ -74,30 +72,14 @@ const RegisterPage = () => {
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <Typography variant='h1' component='h1'>
-                Crear cuenta
+                Iniciar sesión
               </Typography>
               <Chip
-                label='Esta cuenta ya esta registrada'
+                label='No se reconoce ese usuario / contraseña'
                 color='error'
                 icon={<ErrorOutline />}
                 className='fadeIn'
                 sx={{ display: showError ? 'flex' : 'none' }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label='Full Name'
-                variant='filled'
-                fullWidth
-                {...register('name', {
-                  //validaciones..
-                  required: 'Este campo es requerido',
-                  minLength: { value: 2, message: 'Minimo 2 caracteres' },
-                })}
-                // ---> !! = conversion de un obj a boolean <----
-                error={!!errors.name}
-                // --> message = required anterior
-                helperText={errors.name?.message}
               />
             </Grid>
             <Grid item xs={12}>
@@ -135,16 +117,16 @@ const RegisterPage = () => {
             </Grid>
             <Grid item xs={12}>
               <Button color='secondary' className='circular-btn' size='large' type='submit'>
-                Registrarte
+                Ingresar
               </Button>
             </Grid>
 
             <Grid item xs={12} display='flex' justifyContent='end'>
               <Link
-                href={router.query.p ? `/auth/login?p=${router.query.p?.toString()}` : '/auth/login'}
+                href={router.query.p ? `/auth/register?p=${router.query.p?.toString()}` : '/auth/register'}
                 underline='always'
               >
-                ¿Ya tienes cuenta?
+                ¿No tienes cuenta?
               </Link>
             </Grid>
           </Grid>
@@ -154,26 +136,4 @@ const RegisterPage = () => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
-  // crear la sesion con los datos proporcionados
-  const session = await getSession({ req });
-  //console.log(session);
-
-  // redirigir a la pantalla que estaba antes o al inicio
-  const { p = '/' } = query;
-
-  if (session) {
-    return {
-      redirect: {
-        destination: p.toString(),
-        permanent: false,
-      },
-    };
-  }
-
-  return {
-    props: {},
-  };
-};
-
-export default RegisterPage;
+export default LoginPage;

@@ -1,8 +1,9 @@
 import { useEffect, useReducer } from 'react';
 import Cookie from 'js-cookie';
 
-import { ICartProduct } from '<@davsua>/interfaces';
+import { ICartProduct, IOrder, ShippingAddress } from '<@davsua>/interfaces';
 import { CartContext, cartReducer } from './';
+import { tesloApi } from '<@davsua>/api';
 //definir estado de la aplicacion
 
 type Props = {
@@ -18,17 +19,6 @@ export interface CartState {
   total: number;
 
   shippingAddress?: ShippingAddress;
-}
-
-export interface ShippingAddress {
-  firstName: string;
-  lastName: string;
-  address: string;
-  address2?: string;
-  zip: string;
-  city: string;
-  country: string;
-  phone: string;
 }
 
 const CART_INITIAL_STATE: CartState = {
@@ -168,6 +158,33 @@ export const CartProvider: React.FC<Props> = ({ children }) => {
     dispatch({ type: 'Cart - Update address', payload: address });
   };
 
+  const createOrder = async () => {
+    if (!state.shippingAddress) {
+      throw new Error('No hay ninguna direccion de entrega');
+    }
+
+    const body: IOrder = {
+      orderItems: state.cart.map((product) => ({
+        ...product,
+        size: product.size!, // se hacer carpienteria manual por que el size en la interface no es obligatorio
+      })),
+      shippingAddress: state.shippingAddress,
+      numberOfItems: state.numberOfItems,
+      subtotal: state.subTotal,
+      total: state.total,
+      tax: state.tax,
+      isPaid: false,
+    };
+
+    try {
+      const { data } = await tesloApi.post('/orders', body);
+
+      //console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -178,6 +195,9 @@ export const CartProvider: React.FC<Props> = ({ children }) => {
         updateCartQuantity,
         removeCartProduct,
         updateAddress,
+
+        // orders
+        createOrder,
       }}
     >
       {children}

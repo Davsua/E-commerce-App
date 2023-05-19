@@ -16,13 +16,10 @@ mongodb://localhost:27017/teslodb
 
 Renombrar el archivo **.env.template** a **.env**
 
-´´´´´´´´
-#Mongoose
+## Mongoose
 
 - yarn add mongoose
 - database/db.ts
-
-´´´´´´´´
 
 ## Reconstruir modulos de node
 
@@ -33,11 +30,8 @@ yarn install
 llamar a :
 `http://localhost:3000/api/seed `
 
----
-
 ## Backend
 
-``
 **database**
 
 - constants -> it have the constant that i must to use in my models
@@ -50,11 +44,7 @@ llamar a :
 
 - Product -> it have the the Schema and model of type Iproduct (interface of models) helping by mongoose
 
-``
-
 ## Pages
-
-´´´´´´´´
 
 1. Product
 
@@ -65,9 +55,6 @@ llamar a :
   -> to improve the time of loading, i use the get stativ props and get static path... get staticPath help
   me to take all the data that i need (slug) and create the paths; get static prop send the find the exactly slug that i need and send it as prop
 
-´´´´´´´´
-
-``
 **api**
 
 1. seed
@@ -85,15 +72,11 @@ llamar a :
 
 # Hooks
 
-´´´´
 SWR: is using in hooks/useProduct. Make the request to the api and catching the different situations
 like error, empty data or success... fetching is using as global state in \_app
 
-´´´´
-
 # Context
 
-´´´´´´
 Hows work sideMenu:
 
 1.  context, provider and reducer created
@@ -105,10 +88,6 @@ Hows work sideMenu:
 7.  to navigate a function was created calls naviteTo that receives the url and this url will be push to router
     and toggle menu function will be usign again to close the menu
 
-´´´´´´
-
-´´´´´´
-
 # Cart
 
 - Size selector:
@@ -117,7 +96,6 @@ Hows work sideMenu:
   - i create a function to set the state and change the size for the current size (onSelectedSize)
   - the last method will be use receiving the first method sending to the "father component" that is SizeSelector the size that was choising
 
-´´´´´´
-
 # Teslo
+
 # E-commerce-App
