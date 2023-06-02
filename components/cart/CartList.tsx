@@ -6,13 +6,14 @@ import { useContext } from 'react';
 import { CartContext } from '../../context/cart/CartContext';
 import { Product } from '<@davsua>/models';
 import { Iproduct } from '../../interfaces/products';
-import { ICartProduct, ICartProductItem } from '<@davsua>/interfaces';
+import { ICartProduct, ICartProductItem, IOrderItem } from '<@davsua>/interfaces';
 
 interface Props {
   editable?: boolean;
+  products?: IOrderItem[];
 }
 
-export const CartList: React.FC<Props> = ({ editable }) => {
+export const CartList: React.FC<Props> = ({ editable = false, products }) => {
   const { cart, updateCartQuantity, removeCartProduct } = useContext(CartContext);
 
   const onNewCartQuantityValue = (product: ICartProduct, newQuantityValue: number) => {
@@ -34,9 +35,11 @@ export const CartList: React.FC<Props> = ({ editable }) => {
   //   }));
   // };
 
+  const productsToShow = products ? products : cart;
+
   return (
     <>
-      {cart.map((product) => (
+      {productsToShow?.map((product) => (
         <Grid container spacing={2} sx={{ mb: 1 }} key={product._id + product.size}>
           <Grid item xs={3}>
             <Link href={`product/${product.slug}`}>
@@ -64,7 +67,7 @@ export const CartList: React.FC<Props> = ({ editable }) => {
                   currentValue={product.quantity}
                   maxValue={5}
                   // (este viene de itemCounter -> AddOrRemove) => funcion que se crea aqui
-                  updatedQuantity={(newValue) => onNewCartQuantityValue(product, newValue)}
+                  updatedQuantity={(newValue) => onNewCartQuantityValue(product as ICartProduct, newValue)}
                 />
               ) : (
                 <Typography variant='h5'>
@@ -78,7 +81,11 @@ export const CartList: React.FC<Props> = ({ editable }) => {
           <Grid item xs={2} display='flex' alignItems='center' flexDirection='column'>
             <Typography>{'$' + product.price}</Typography>
             {editable && (
-              <Button variant='text' color='secondary' onClick={() => removeCartProduct(product)}>
+              <Button
+                variant='text'
+                color='secondary'
+                onClick={() => removeCartProduct(product as ICartProduct)}
+              >
                 Remover
               </Button>
             )}

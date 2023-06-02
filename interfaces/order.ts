@@ -8,12 +8,15 @@ export interface IOrder {
   paymentResult?: string;
 
   numberOfItems: number;
-  subtotal: number;
+  subTotal: number;
   total: number;
   tax: number;
 
   isPaid: boolean;
   paidAt?: string;
+
+  //para el geestor de pago
+  transactionId?: String;
 }
 
 export interface IOrderItem {

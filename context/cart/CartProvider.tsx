@@ -4,6 +4,7 @@ import Cookie from 'js-cookie';
 import { ICartProduct, IOrder, ShippingAddress } from '<@davsua>/interfaces';
 import { CartContext, cartReducer } from './';
 import { tesloApi } from '<@davsua>/api';
+import axios from 'axios';
 //definir estado de la aplicacion
 
 type Props = {
@@ -158,7 +159,7 @@ export const CartProvider: React.FC<Props> = ({ children }) => {
     dispatch({ type: 'Cart - Update address', payload: address });
   };
 
-  const createOrder = async () => {
+  const createOrder = async (): Promise<{ hasError: boolean; message: string }> => {
     if (!state.shippingAddress) {
       throw new Error('No hay ninguna direccion de entrega');
     }
@@ -170,18 +171,35 @@ export const CartProvider: React.FC<Props> = ({ children }) => {
       })),
       shippingAddress: state.shippingAddress,
       numberOfItems: state.numberOfItems,
-      subtotal: state.subTotal,
+      subTotal: state.subTotal,
       total: state.total,
       tax: state.tax,
       isPaid: false,
     };
 
     try {
-      const { data } = await tesloApi.post('/orders', body);
+      const { data } = await tesloApi.post<IOrder>('/orders', body);
 
-      //console.log(data);
+      // 'purgar' el carrito
+      dispatch({ type: 'Cart . Order Complete' });
+
+      // orden: console.log(data);
+
+      return {
+        hasError: false,
+        message: data._id!,
+      };
     } catch (error) {
-      console.log(error);
+      if (axios.isAxiosError(error)) {
+        return {
+          hasError: true,
+          message: error.response?.data.message,
+        };
+      }
+      return {
+        hasError: true,
+        message: 'Error no controlado, hable con el administrador',
+      };
     }
   };
 

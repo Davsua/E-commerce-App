@@ -1,6 +1,5 @@
 import { ICartProduct, ShippingAddress } from '<@davsua>/interfaces';
 import { CartState } from './';
-import { ProductCard } from '../../components/products/ProductCard';
 
 type CartActionType =
   | { type: 'Cart - Load Cart From Cookies | storage'; payload: ICartProduct[] }
@@ -17,7 +16,8 @@ type CartActionType =
         tax: number;
         total: number;
       };
-    };
+    }
+  | { type: 'Cart . Order Complete' };
 
 export const cartReducer = (state: CartState, action: CartActionType): CartState => {
   switch (action.type) {
@@ -70,6 +70,16 @@ export const cartReducer = (state: CartState, action: CartActionType): CartState
       return {
         ...state,
         ...action.payload,
+      };
+
+    case 'Cart . Order Complete':
+      return {
+        ...state,
+        cart: [],
+        numberOfItems: 0,
+        subTotal: 0,
+        tax: 0,
+        total: 0,
       };
 
     default:

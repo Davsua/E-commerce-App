@@ -3,15 +3,18 @@ import { ShopLayout } from '<@davsua>/components/layouts';
 import { CartContext } from '<@davsua>/context';
 import { countries } from '<@davsua>/utils';
 import { RouteRounded } from '@mui/icons-material';
-import { Button, Card, CardContent, Divider, Grid, Link, Typography } from '@mui/material';
+import { Button, Card, CardContent, Divider, Grid, Link, Typography, Chip } from '@mui/material';
 import { Box } from '@mui/system';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 const SummaryOrder = () => {
   const router = useRouter();
   const { shippingAddress, numberOfItems, createOrder } = useContext(CartContext);
+
+  const [isPosting, setIsPosting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     if (!Cookies.get('firstName')) {
@@ -19,13 +22,25 @@ const SummaryOrder = () => {
     }
   }, [router]);
 
-  const onCreateOrder = () => {
-    createOrder();
+  const onCreateOrder = async () => {
+    // evitar doble posteo de la orden
+    setIsPosting(true);
+    const { hasError, message } = await createOrder();
+
+    // si hay un error
+    if (hasError) {
+      setIsPosting(false);
+      setErrorMessage(message);
+      return;
+    }
+
+    // Enviarlo al id de la orden
+    router.replace(`/orders/${message}`);
   };
 
-  if (!shippingAddress) {
+  /*if (!shippingAddress) {
     <></>;
-  }
+  }*/
 
   //const { firstName, lastName, address, address2, phone, zip, country, city } = (shippingAddress);
 
@@ -64,7 +79,7 @@ const SummaryOrder = () => {
                 {shippingAddress?.address} {shippingAddress?.address2 ? `, ${shippingAddress.address2}` : ''}
               </Typography>
               <Typography>
-                {shippingAddress?.city} , {shippingAddress?.zip}
+                {shippingAddress?.city}, {shippingAddress?.zip}
               </Typography>
               <Typography>{countries.find((c) => c.code === shippingAddress?.country)?.name}</Typography>
               <Typography>{shippingAddress?.phone}</Typography>
@@ -79,10 +94,20 @@ const SummaryOrder = () => {
 
               <OrderSummary />
 
-              <Box sx={{ mt: 3 }}>
-                <Button color='secondary' className='circular-btn' onClick={onCreateOrder}>
+              <Box sx={{ mt: 3 }} display='flex' flexDirection='column'>
+                <Button
+                  color='secondary'
+                  className='circular-btn'
+                  onClick={onCreateOrder}
+                  disabled={isPosting}
+                >
                   Confirmar Orden
                 </Button>
+                <Chip
+                  color='error'
+                  label={errorMessage}
+                  sx={{ display: errorMessage ? 'flex' : 'none', mt: 2 }}
+                />
               </Box>
             </CardContent>
           </Card>
