@@ -12,7 +12,7 @@ import { Grid } from '@mui/material';
 import { TextField } from '@mui/material';
 import { Button } from '@mui/material';
 import { Link } from '@mui/material';
-import { Chip } from '@mui/material';
+//import { Chip } from '@mui/material';
 import { Divider } from '@mui/material';
 import Typography from '@mui/material/Typography';
 
@@ -100,13 +100,13 @@ const LoginPage = () => {
               <Typography variant='h1' component='h1'>
                 Iniciar sesión
               </Typography>
-              <Chip
+              {/*<Chip
                 label='No se reconoce ese usuario / contraseña'
                 color='error'
                 icon={<ErrorOutline />}
                 className='fadeIn'
                 sx={{ display: showError ? 'flex' : 'none' }}
-              />
+      />*/}
             </Grid>
             <Grid item xs={12}>
               <TextField
