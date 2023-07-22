@@ -24,22 +24,46 @@ export async function middleware(req: NextRequest) {
   // -------------------- con next auth -------------------->
 
   //encontrar la sesion vigente
-  const session = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const session: any = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   //console.log({ session });
 
   if (!session) {
     const requestedPage = req.nextUrl.pathname;
-    // armar la url para que redirija a pag de autenticacion, la pagina anterior y el query solicitado
-    const url = req.nextUrl.clone();
-    url.pathname = '/auth/login';
-    url.search = `p=${requestedPage}`;
 
-    return NextResponse.redirect(url);
+    if (req.nextUrl.pathname.startsWith('/api/admin')) {
+      return NextResponse.redirect(new URL('/api/auth/unauthorized', req.url));
+    }
+
+    return NextResponse.redirect(new URL(`/auth/login?p=${requestedPage}`, req.url));
+  }
+  const validRoles = ['admin', 'super-user', 'SEO'];
+
+  // ------------> FRONTED -------------
+
+  if (req.nextUrl.pathname.startsWith('/admin')) {
+    if (!validRoles.includes(session.user.role)) {
+      return NextResponse.redirect(new URL('/', req.url));
+    }
+  }
+
+  // -------------> BACKEND (API) ------------
+
+  if (req.nextUrl.pathname.startsWith('/api/admin')) {
+    if (!validRoles.includes(session.user.role)) {
+      return NextResponse.redirect(new URL('/api/auth/unauthorized', req.url));
+    }
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/checkout/:path*', '/orders'],
+  matcher: [
+    '/checkout/:path*',
+    '/orders',
+    '/api/orders/:path*',
+    '/admin/:path*',
+    '/api/admin/:path*',
+    '/admin',
+  ],
 };

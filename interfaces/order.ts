@@ -17,6 +17,9 @@ export interface IOrder {
 
   //para el geestor de pago
   transactionId?: String;
+
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface IOrderItem {

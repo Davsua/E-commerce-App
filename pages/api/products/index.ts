@@ -34,14 +34,24 @@ const getProducts = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
 
   await db.connect();
 
-  const products = await Product.find(condition)
-    .select('title images price inStock slug -_id')
-    .lean();
+  const products = await Product.find(condition).select('title images price inStock slug -_id').lean();
   // 1. si al find no se le manda nada, trae TODO
   // 2. select es para escoger los campos que quiero traer solamente
   //si se pone un - significa que no quiero esa columna
 
   await db.disconnect();
 
-  return res.status(200).json(products);
+  /*-------------------------
+      permitir leer imagene de FileSystem y cloudinary
+  --------------------------*/
+
+  const updatedProducts = products.map((product) => {
+    product.images = product.images.map((img) => {
+      return img.includes('http') ? img : `${process.env.HOST_NAME}products/${img}`;
+    });
+
+    return product;
+  });
+
+  return res.status(200).json(updatedProducts);
 };

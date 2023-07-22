@@ -11,6 +11,14 @@ export const getProductBySlug = async (slug: string): Promise<Iproduct | null> =
 
   if (!product) return null;
 
+  /*-------------------------
+      permitir leer imagene de FileSystem y cloudinary
+  --------------------------*/
+
+  product.images = product.images.map((img) => {
+    return img.includes('http') ? img : `${process.env.HOST_NAME}products/${img}`;
+  });
+
   return JSON.parse(JSON.stringify(product));
 };
 
@@ -40,12 +48,24 @@ export const getProductsByTerm = async (term: string): Promise<Iproduct[]> => {
     // el tipo fue asignado en models/Product y busca en title y tags
     $text: { $search: term },
   })
-    .select('title images price inStock -_id')
+    .select('title images slug price inStock -_id')
     .lean();
 
   await db.disconnect();
 
-  return products;
+  /*-------------------------
+      permitir leer imagene de FileSystem y cloudinary
+  --------------------------*/
+
+  const updatedProducts = products.map((product) => {
+    product.images = product.images.map((img) => {
+      return img.includes('http') ? img : `${process.env.HOST_NAME}products/${img}`;
+    });
+
+    return product;
+  });
+
+  return updatedProducts;
 };
 
 export const getAllProducts = async (): Promise<Iproduct[]> => {
@@ -55,6 +75,18 @@ export const getAllProducts = async (): Promise<Iproduct[]> => {
 
   await db.disconnect();
 
+  /*-------------------------
+      permitir leer imagene de FileSystem y cloudinary
+  --------------------------*/
+
+  const updatedProducts = products.map((product) => {
+    product.images = product.images.map((img) => {
+      return img.includes('http') ? img : `${process.env.HOST_NAME}products/${img}`;
+    });
+
+    return product;
+  });
+
   //serializar las dates y el id
-  return JSON.parse(JSON.stringify(products));
+  return JSON.parse(JSON.stringify(updatedProducts));
 };

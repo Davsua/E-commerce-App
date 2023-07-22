@@ -26,7 +26,8 @@ export const authOptions: NextAuthOptions = {
         //siempre debe retornar algo
         //return { id: '12', name: 'David', email: 'Ds@gmail.com', role: 'admin' };
 
-        return await dbUsers.checkUserEmailPassword(credentials!.email, credentials!.password);
+        return (await dbUsers.checkUserEmailPassword(credentials!.email, credentials!.password)) as any;
+        //return await dbUsers.checkUserEmailPassword(credentials!.email, credentials!.password);
       },
     }),
 

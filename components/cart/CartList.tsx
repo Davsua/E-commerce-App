@@ -39,16 +39,12 @@ export const CartList: React.FC<Props> = ({ editable = false, products }) => {
 
   return (
     <>
-      {productsToShow?.map((product) => (
+      {productsToShow.map((product) => (
         <Grid container spacing={2} sx={{ mb: 1 }} key={product._id + product.size}>
           <Grid item xs={3}>
             <Link href={`product/${product.slug}`}>
               <CardActionArea>
-                <CardMedia
-                  image={`/products/${product.image}`}
-                  component='img'
-                  sx={{ borderRadius: '5px' }}
-                />
+                <CardMedia image={product.image} component='img' sx={{ borderRadius: '5px' }} />
               </CardActionArea>
             </Link>
           </Grid>

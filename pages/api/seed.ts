@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { Product, User } from '<@davsua>/models';
+import { Order, Product, User } from '<@davsua>/models';
 import { db, seedDatabase } from '<@davsua>/database';
 
 type Data = {
@@ -22,6 +22,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   //si no pongo nada entr () elimino/agrego TODO
   await Product.deleteMany();
   await Product.insertMany(seedDatabase.initialData.products);
+
+  await Order.deleteMany();
 
   //Hasta aqui es la interaccion con la base de datos
   await db.disconnect();

@@ -30,7 +30,7 @@ const createOrder = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     return res.status(401).json({ message: 'Debe de estar autenticado para hacer esto' });
   }
 
-  console.log(session);
+  //console.log(session);
 
   // Crear un arreglo con los productos que la persona quiere
   const productsIds = orderItems.map((product) => product._id);
@@ -58,9 +58,9 @@ const createOrder = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     }
 
     // Todo bien hasta este punto
-    console.log(session.user);
+    //console.log(session.user);
     const userId = session.user._id;
-    console.log(userId);
+    //console.log(userId);
 
     const newOrder = new Order({ ...req.body, isPaid: false, user: userId });
     //convertir a solos dos decimales

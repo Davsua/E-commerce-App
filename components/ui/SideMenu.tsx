@@ -18,6 +18,7 @@ import {
   AdminPanelSettings,
   CategoryOutlined,
   ConfirmationNumberOutlined,
+  DashboardOutlined,
   EscalatorWarningOutlined,
   FemaleOutlined,
   LoginOutlined,
@@ -156,21 +157,28 @@ export const SideMenu = () => {
 
               <Divider />
 
-              <ListItemButton onClick={() => navigateTo('/')}>
+              <ListItemButton onClick={() => navigateTo(`/admin`)}>
+                <ListItemIcon>
+                  <DashboardOutlined />
+                </ListItemIcon>
+                <ListItemText primary={'DashBoard'} />
+              </ListItemButton>
+
+              <ListItemButton onClick={() => navigateTo('/admin/products')}>
                 <ListItemIcon>
                   <CategoryOutlined />
                 </ListItemIcon>
                 <ListItemText primary={'Productos'} />
               </ListItemButton>
 
-              <ListItemButton>
+              <ListItemButton onClick={() => navigateTo(`/admin/orders`)}>
                 <ListItemIcon>
                   <ConfirmationNumberOutlined />
                 </ListItemIcon>
                 <ListItemText primary={'Ordenes'} />
               </ListItemButton>
 
-              <ListItemButton>
+              <ListItemButton onClick={() => navigateTo(`/admin/users`)}>
                 <ListItemIcon>
                   <AdminPanelSettings />
                 </ListItemIcon>
